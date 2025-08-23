@@ -136,10 +136,10 @@
               ];
               text = ''
                 COMMANDS=("gsay" "gserver" "glisten")
-                progname=$(basename "''${ARGV0-$0}")
+                progname=$(${pkgs.coreutils}/bin/basename "''${ARGV0-$0}")
 
                 is_valid_command() {
-                  printf '%s\n' "''${COMMANDS[@]}" | grep -qx "$1" 2>/dev/null
+                  printf '%s\n' "''${COMMANDS[@]}" | ${pkgs.gnugrep}/bin/grep -qx "$1"
                 }
 
                 gsay() {
