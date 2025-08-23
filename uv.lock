@@ -104,7 +104,7 @@ sdist = { url = "https://files.pythonhosted.org/packages/a4/18/a8b2204590a4f7f12
 
 [[package]]
 name = "gsay"
-version = "0.0.1"
+version = "0.0.2"
 source = { editable = "." }
 dependencies = [
     { name = "fastapi" },
