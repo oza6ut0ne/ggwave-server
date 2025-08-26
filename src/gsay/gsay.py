@@ -163,8 +163,11 @@ def generate_audio_bytes(
     logger.debug(script)
 
     max_batch_chars = settings.batch_max_bytes // 4
+    if isinstance(script, bytes):
+        script = base64.b64encode(script).decode()
+        binary = True
+
     if binary:
-        # script = base64.b64encode(script.encode()).decode()
         max_batch_chars = settings.batch_max_bytes
 
     texts = [
