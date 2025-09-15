@@ -5,7 +5,7 @@
 #   "ggwave==0.4.2",
 #   "pydantic==1.10.19",
 #   "python-dotenv==1.0.1",
-#   "soundcard==0.4.4",
+#   "soundcard==0.4.5",
 #   "soundfile==0.13.1",
 # ]
 # ///
@@ -73,7 +73,7 @@ def _parse_args():
     parser.add_argument('-l', '--loop', action='store_true')
     parser.add_argument('-n', '--newline', action='store_true')
     parser.add_argument('-b', '--binary', action='store_true')
-    parser.add_argument('-m', '--mic-id', type=int, default=0)
+    parser.add_argument('-m', '--mic-id', type=int, default=None)
     return parser.parse_args()
 
 
@@ -114,9 +114,12 @@ def main():
                             print(flush=True)
 
         else:
-            mics = sc.all_microphones()
+            mics = sc.all_microphones(include_loopback=True)
             logger.debug('mics: %s', mics)
-            mic = mics[args.mic_id]
+            if args.mic_id is None:
+                mic = sc.default_microphone()
+            else:
+                mic = mics[args.mic_id]
             logger.debug('mic: %s', mic)
             with mic.recorder(samplerate=48000, channels=1, blocksize=1024) as recorder:
                 while True:

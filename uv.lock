@@ -128,7 +128,7 @@ requires-dist = [
     { name = "paho-mqtt", specifier = "==2.1.0" },
     { name = "pydantic", specifier = "==1.10.19" },
     { name = "python-dotenv", specifier = "==1.0.1" },
-    { name = "soundcard", specifier = ">=0.4.4" },
+    { name = "soundcard", specifier = "==0.4.5" },
     { name = "soundfile", specifier = "==0.13.1" },
     { name = "uvicorn", specifier = "==0.23.2" },
 ]
@@ -230,15 +230,15 @@ wheels = [
 
 [[package]]
 name = "soundcard"
-version = "0.4.4"
+version = "0.4.5"
 source = { registry = "https://pypi.org/simple" }
 dependencies = [
     { name = "cffi" },
     { name = "numpy" },
 ]
-sdist = { url = "https://files.pythonhosted.org/packages/7b/4b/a285575be93545fed2cc03ad89b5331876ecd9dda612b53e2d3e4b7bbae1/soundcard-0.4.4.tar.gz", hash = "sha256:87df9c4b8ec97585fe440a1d9dbafabcece58eae5857ed005e6bb385b2179cff", size = 40786, upload-time = "2025-03-20T18:25:22.627Z" }
+sdist = { url = "https://files.pythonhosted.org/packages/b8/b4/2064f857a9e6e6e3b152fae339f32beb65cfbcd11878d2e4a020e88fc36d/soundcard-0.4.5.tar.gz", hash = "sha256:07272ba927e32cafdf634e4a1ca53b9a3218321a60c7d2e08f54b832a56946aa", size = 40831, upload-time = "2025-09-15T19:08:42.95Z" }
 wheels = [
-    { url = "https://files.pythonhosted.org/packages/c1/63/8c2d352a3844ffde944505e2102d689dc0a026afa52132fa6782fe0ef43a/soundcard-0.4.4-py3-none-any.whl", hash = "sha256:e915dc6d281bbce369cd3ace46f37e07941dbf2ba867bf4677e7a9433fd63657", size = 43898, upload-time = "2025-03-20T18:25:21.177Z" },
+    { url = "https://files.pythonhosted.org/packages/fa/d5/700e3018056716c627d8ea783594fc939f74c5878a671c0673281d9e069d/soundcard-0.4.5-py3-none-any.whl", hash = "sha256:8a19c3d5486250bb2990dbd91a75ddf9f15cab39f24ff607e5bce812f43b4917", size = 43923, upload-time = "2025-09-15T19:08:41.339Z" },
 ]
 
 [[package]]

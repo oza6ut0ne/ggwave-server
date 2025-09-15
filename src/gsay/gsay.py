@@ -7,6 +7,7 @@
 #   "numpy==2.2.6",
 #   "pydantic==1.10.19",
 #   "python-dotenv==1.0.1",
+#   "soundcard==0.4.5",
 #   "soundfile==0.13.1",
 # ]
 # ///
@@ -16,6 +17,7 @@ import base64
 import io
 import logging
 import os
+import platform
 import queue
 import subprocess
 import sys
@@ -55,11 +57,18 @@ def _find_default_path(rel_path):
     return CONFIG_DIR / rel_path
 
 
+if platform.system() == 'Linux':
+    DEFAULT_PLAY_COMMAND = 'paplay'
+else:
+    DEFAULT_PLAY_COMMAND = ''
+
+
 class Settings(BaseSettings):
     debug: bool = False
-    play_command: str = 'paplay'
     lock_file: str = str(Path(tempfile.gettempdir()) / 'lockfiles/gsay.lock')
-    play_timeout: int|None = None
+    play_command: str | list[str] = DEFAULT_PLAY_COMMAND
+    play_timeout: int | None = None
+    speaker_idx: int | None = None
     batch_max_bytes: int = 140
     protocol_id: int = 2
     volume: int = 50
@@ -71,8 +80,9 @@ class Settings(BaseSettings):
         env_file = _find_default_path('.env')
         fields = {
             'debug': {'env': ['gsay_debug', 'debug']},
-            'play_command': {'env': ['gsay_play_command', 'play_command']},
             'lock_file': {'env': ['gsay_lock_file', 'lock_file']},
+            'play_command': {'env': ['gsay_play_command', 'play_command']},
+            'speaker_idx': {'env': ['vsay_speaker_idx', 'speaker_idx']},
             'protocol_id': {'env': ['gsay_protocol_id', 'protocol_id']},
             'volume': {'env': ['gsay_volume', 'volume']},
         }
@@ -191,10 +201,24 @@ def generate_audio_bytes(
     return result_bytes.read()
 
 
+def play_sound(
+    audio_bytes,
+    command=settings.play_command,
+    timeout=settings.play_timeout,
+    speaker_idx=settings.speaker_idx,
+):
+    if command:
+        play_sound_with_external_command(audio_bytes, command, timeout)
+    else:
+        play_sound_with_soundcard(audio_bytes, speaker_idx)
+
+
 @fasteners.interprocess_locked(settings.lock_file)
-def play_sound(audio_bytes):
+def play_sound_with_external_command(
+    audio_bytes, command=settings.play_command, timeout=settings.play_timeout
+):
     p_play = subprocess.Popen(
-        settings.play_command,
+        command,
         shell=False,
         stdin=subprocess.PIPE,
         stdout=subprocess.DEVNULL,
@@ -202,10 +226,24 @@ def play_sound(audio_bytes):
     )
 
     try:
-        p_play.communicate(input=audio_bytes, timeout=settings.play_timeout)
+        p_play.communicate(input=audio_bytes, timeout=timeout)
     except subprocess.TimeoutExpired as e:
         p_play.terminate()
         logger.error(e)
+
+
+@fasteners.interprocess_locked(settings.lock_file)
+def play_sound_with_soundcard(audio_bytes, speaker_idx=settings.speaker_idx):
+    # lazily importing soundcard because it is slow
+    import soundcard as sc
+
+    frames, samplerate = sf.read(io.BytesIO(audio_bytes))
+    if speaker_idx is None:
+        speaker = sc.default_speaker()
+    else:
+        speaker = sc.all_speakers()[speaker_idx]
+
+    speaker.play(frames, samplerate)
 
 
 def _parse_args():
@@ -231,6 +269,10 @@ def main():
 
     logger.debug(settings.dict())
     logger.debug(args)
+    if settings.debug and not settings.play_command:
+        # lazily importing soundcard because it is slow
+        import soundcard as sc
+        logger.debug('speakers: %s', sc.all_speakers())
 
     if args.script is sys.stdin:
         if args.script.isatty():

@@ -9,6 +9,7 @@
 #   "paho-mqtt==2.1.0",
 #   "pydantic==1.10.19",
 #   "python-dotenv==1.0.1",
+#   "soundcard==0.4.5",
 #   "soundfile==0.13.1",
 #   "uvicorn==0.23.2",
 # ]
